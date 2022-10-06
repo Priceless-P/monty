@@ -23,7 +23,7 @@ int is_empty_line(char *line, char *delims)
 				break;
 		}
 		if (delims[j] == '\0')
-			return (0)
+			return (0);
 	}
 
 	return (1);

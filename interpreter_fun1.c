@@ -39,7 +39,7 @@ int initialize_stack(stack_t **stack)
 	if (node == NULL)
 		return (malloc_error());
 
-	node->n = *stack;
+	node->n = STACK;
 	node->prev = NULL;
 	node->next = NULL;
 
@@ -71,11 +71,11 @@ void free_tokens(void)
 {
 	size_t i;
 
-	if (op_token == NULL)
+	if (op_tokens == NULL)
 		return;
 
-		for (i = 0; op_tokens[i]; i++)
-			free(op_tokens[i]);
+	for (i = 0; op_tokens[i]; i++)
+		free(op_tokens[i]);
 
 	free(op_tokens);
 }

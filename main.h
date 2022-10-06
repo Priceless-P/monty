@@ -13,7 +13,7 @@
 /* GLOBAL OPCODE TOKENS */
 extern char **op_tokens;
 /**
- * struct stack_s - doubly linked list representation of a stack (or queue)
+ * struct stack_t - doubly linked list representation of a stack (or queue)
  * @n: integer
  * @prev: points to the previous element of the stack (or queue)
  * @next: points to the next element of the stack (or queue)
@@ -21,11 +21,11 @@ extern char **op_tokens;
  * Description: doubly linked list node structure
  * for stack, queues, LIFO, FIFO
  */
-typedef struct stack_s
+typedef struct stack_t
 {
-		int n;
-		struct stack_s *prev;
-		struct stack_s *next;
+	int n;
+	struct stack_t *prev;
+	struct stack_t *next;
 } stack_t;
 
 /**
@@ -38,8 +38,8 @@ typedef struct stack_s
  */
 typedef struct instruction_s
 {
-		char *opcode;
-		void (*f)(stack_t **stack, unsigned int line_number);
+	char *opcode;
+	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 /* Opcode Functions */
 void monty_push(stack_t **stack, unsigned int line_number);
@@ -69,7 +69,7 @@ unsigned int token_array_len(void);
 int is_empty_line(char *line, char *delims);
 int run_monty(FILE *script_fd);
 void set_op_tok_error(int error_code);
-void (*get_op_func(char *opcode))(stack_t**, unsigned int);
+void (*get_op_func(char *opcode))(stack_t **, unsigned int);
 
 /* Custom Library Functions */
 char **strtow(char *str, char *delims);
@@ -77,13 +77,15 @@ char *char_convert(int num);
 unsigned int absolute_num(int);
 int get_numbase_len(unsigned int num, unsigned int base);
 void fill_numbase_buff(unsigned int num, unsigned int base,
-	char *buff, int buff_size);
+					   char *buff, int buff_size);
 
 /* Error Messages and codes */
 int usage_error(void);
 int malloc_error(void);
 int fopen_error(char *filename);
 int unknown_instruct_error(char *opcode, unsigned int line_number);
+int no_int_error(unsigned int line_number);
+int pint_error(unsigned int line_number);
 int short_stack_error(unsigned int line_number, char *op);
 int div_error(unsigned int line_number);
 int pop_error(unsigned int line_number);

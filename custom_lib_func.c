@@ -44,7 +44,7 @@ char *char_convert(int num)
 unsigned int absolute_num(int i)
 {
 	if (i < 0)
-		return (-(unsigned int (i)))
+		return (-(unsigned int)i);
 	return ((unsigned int)i);
 }
 
