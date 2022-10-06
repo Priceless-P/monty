@@ -1,5 +1,4 @@
-
-#include "main.h"
+#include <stdlib.h>
 
 char **strtow(char *str, char *delims);
 int is_delim(char ch, char *delims);
