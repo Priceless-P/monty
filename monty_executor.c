@@ -90,8 +90,10 @@ int execute_monty(FILE *file_handle)
 	void (*op_function)(stack_t**, unsigned int);
 
 	if (initialize_stack(&stack) == EXIT_FAILURE)
+	{
 		return (EXIT_FAILURE);
-
+	}
+	instruction_tokens = malloc(sizeof(char *) * 2);
 	while (getline(&line_content, &len, file_handle) != -1)
 	{
 		line_num++;
