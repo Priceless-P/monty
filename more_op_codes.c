@@ -1,86 +1,128 @@
-#include "main.h"
+#include "monty.h"
 
-/**
-* add - Adds the top two elements of the stack
-* @stack: A pointer to the top of the stack
-* @line_number: The current line number
-*/
+void add(stack_t **stack, unsigned int line_number);
+
+void sub(stack_t **stack, unsigned int line_number);
+
+void divide(stack_t **stack, unsigned int line_number);
+
+void mul(stack_t **stack, unsigned int line_number);
+
+void mod(stack_t **stack, unsigned int line_number);
+
 void add(stack_t **stack, unsigned int line_number)
 {
-	if (*stack == NULL || (*stack)->next == NULL)
+	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
 	{
-		fprintf(stderr, "L%u: can't add, stack too short\n", line_number);
-		exit(EXIT_FAILURE);
+		set_token_error(short_stack_error(line_number, "add"));
+		return;
 	}
 
-	(*stack)->next->n += (*stack)->n;
+	(*stack)->next->next->n += (*stack)->next->n;
 	pop(stack, line_number);
 }
 
-/**
-* nop - Does nothing
-* @stack: A pointer to the top of the stack
-* @line_number: The current line number
-*/
+void sub(stack_t **stack, unsigned int line_number)
+{
+	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
+	{
+		set_token_error(short_stack_error(line_number, "sub"));
+		return;
+	}
+
+	(*stack)->next->next->n -= (*stack)->next->n;
+	pop(stack, line_number);
+}
+
+void divide(stack_t **stack, unsigned int line_number)
+{
+	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
+	{
+		set_token_error(short_stack_error(line_number, "div"));
+		return;
+	}
+
+	if ((*stack)->next->n == 0)
+	{
+		set_token_error(div_error(line_number));
+		return;
+	}
+
+	(*stack)->next->next->n /= (*stack)->next->n;
+	pop(stack, line_number);
+}
+
+void mul(stack_t **stack, unsigned int line_number)
+{
+	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
+	{
+		set_token_error(short_stack_error(line_number, "mul"));
+		return;
+	}
+
+	(*stack)->next->next->n *= (*stack)->next->n;
+	pop(stack, line_number);
+}
+
+void mod(stack_t **stack, unsigned int line_number)
+{
+	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
+	{
+		set_token_error(short_stack_error(line_number, "mod"));
+		return;
+	}
+
+	if ((*stack)->next->n == 0)
+	{
+		set_token_error(div_error(line_number));
+		return;
+	}
+
+	(*stack)->next->next->n %= (*stack)->next->n;
+	pop(stack, line_number);
+}
+
+#include "monty.h"
+
+void nop(stack_t **stack, unsigned int line_number);
+
+void pchar(stack_t **stack, unsigned int line_number);
+
+void pstr(stack_t **stack, unsigned int line_number);
+
 void nop(stack_t **stack, unsigned int line_number)
 {
 	(void)stack;
 	(void)line_number;
 }
 
-/**
-* sub - Subtracts the top element of the stack from the second top element
-* @stack: A pointer to the top of the stack
-* @line_number: The current line number
-*/
-void sub(stack_t **stack, unsigned int line_number)
+void pchar(stack_t **stack, unsigned int line_number)
 {
-	if (*stack == NULL || (*stack)->next == NULL)
+	if ((*stack)->next == NULL)
 	{
-		fprintf(stderr, "L%u: can't sub, stack too short\n", line_number);
-		exit(EXIT_FAILURE);
+		set_token_error(pchar_error(line_number, "stack empty"));
+		return;
+	}
+	if ((*stack)->next->n < 0 || (*stack)->next->n > 127)
+	{
+		set_token_error(pchar_error(line_number, "value out of range"));
+		return;
 	}
 
-	(*stack)->next->n -= (*stack)->n;
-	pop(stack, line_number);
+	printf("%c\n", (*stack)->next->n);
 }
 
-/**
-* divide - Divides the second top element of the stack by the top element
-* @stack: A pointer to the top of the stack
-* @line_number: The current line number
-*/
-void divide(stack_t **stack, unsigned int line_number)
+void pstr(stack_t **stack, unsigned int line_number)
 {
-	if (*stack == NULL || (*stack)->next == NULL)
+	stack_t *tmp = (*stack)->next;
+
+	while (tmp && tmp->n != 0 && (tmp->n > 0 && tmp->n <= 127))
 	{
-		fprintf(stderr, "L%u: can't div, stack too short\n", line_number);
-		exit(EXIT_FAILURE);
+		printf("%c", tmp->n);
+		tmp = tmp->next;
 	}
 
-	if ((*stack)->n == 0)
-	{
-		fprintf(stderr, "L%u: division by zero\n", line_number);
-		exit(EXIT_FAILURE);
-	}
+	printf("\n");
 
-	(*stack)->next->n /= (*stack)->n;
-	pop(stack, line_number);
-}
-
-/**
-* mul - Multiplies the second top element of the stack with the top element
-* @stack: A pointer to the top of the stack
-* @line_number: The current line number
-*/
-void mul(stack_t **stack, unsigned int line_number)
-{
-	if (*stack == NULL || (*stack)->next == NULL)
-	{
-		fprintf(stderr, "L%u: can't mul, stack too short\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-
-	(*stack)->next->n *= (*stack)->n;
-	pop(stack, line_number);
+	(void)line_number;
 }

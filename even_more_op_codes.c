@@ -1,91 +1,63 @@
-#include "main.h"
+#include "monty.h"
 
-/**
-* pchar - Prints the char at the top of the stack, followed by a new line.
-* @stack: Stack to be printed.
-* @line_number: Current line number.
-*/
-void pchar(stack_t **stack, unsigned int line_number)
-{
-	int ascii_value = (*stack)->n;
+void rotl(stack_t **stack, unsigned int line_number);
 
-	if (*stack == NULL)
-	{
-		fprintf(stderr, "L%u: can't pchar, stack empty\n", line_number);
-		exit(EXIT_FAILURE);
-	}
+void rotr(stack_t **stack, unsigned int line_number);
 
-	if (ascii_value < 0 || ascii_value > 127)
-	{
-		fprintf(stderr, "L%u: can't pchar, value out of range\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-	putchar(ascii_value);
-	putchar('\n');
-}
+void stack(stack_t **stack, unsigned int line_number);
 
-/**
- * pstr - Prints the string starting at the top of the stack,
- * followed by a new line
- * @stack: Stack to be printed.
- * @line_number: Current line number.
- */
-void pstr(stack_t **stack, unsigned int line_number)
-{
-	stack_t *temp = *stack;
-	(void)line_number;
-	while (temp != NULL && temp->n != 0 && (temp->n > 0 && temp->n <= 127))
-	{
-		printf("%c", temp->n);
-		temp = temp->next;
-	}
-	printf("\n");
-}
+void queue(stack_t **stack, unsigned int line_number);
 
-/**
- * rotl - Rotates the stack to the top..
- *
- * @stack: The value to be rotated.
- * @line_number: The number of positions to rotate the bits to the left.
- */
 void rotl(stack_t **stack, unsigned int line_number)
 {
-	int first_value = 0;
+	stack_t *top, *bottom;
+
+	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
+		return;
+
+	top = (*stack)->next;
+	bottom = (*stack)->next;
+	while (bottom->next != NULL)
+		bottom = bottom->next;
+
+	top->next->prev = *stack;
+	(*stack)->next = top->next;
+	bottom->next = top;
+	top->next = NULL;
+	top->prev = bottom;
 
 	(void)line_number;
-	if (*stack != NULL && (*stack)->next != NULL)
-	{
-		first_value = (*stack)->n;
-		*stack = (*stack)->next;
-		free((*stack)->prev);
-		(*stack)->prev = NULL;
-		add_nodeint_end(stack, first_value);
-	}
 }
-
-/**
- * rotr - Rotates the stack to the bottom.
- *
- * @stack: The value to be rotated.
- * @line_number: The number of positions to rotate the bits to the left.
- */
 
 void rotr(stack_t **stack, unsigned int line_number)
 {
-	stack_t *last = *stack;
-	int temp;
-	(void)line_number;
+	stack_t *top, *bottom;
 
-	if (*stack == NULL || (*stack)->next == NULL)
+	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
 		return;
 
-	while (last->next != NULL)
-	{
-		last = last->next;
-	}
-	temp = last->n;
-	last->prev->next = NULL;
-	free(last);
+	top = (*stack)->next;
+	bottom = (*stack)->next;
+	while (bottom->next != NULL)
+		bottom = bottom->next;
 
-	push(stack, temp);
+	bottom->prev->next = NULL;
+	(*stack)->next = bottom;
+	bottom->prev = *stack;
+	bottom->next = top;
+	top->prev = bottom;
+
+	(void)line_number;
+}
+
+void stack(stack_t **stack, unsigned int line_number)
+{
+	(*stack)->n = STACK;
+	(void)line_number;
+}
+
+void queue(stack_t **stack, unsigned int line_number)
+{
+	(*stack)->n = QUEUE;
+	(void)line_number;
 }

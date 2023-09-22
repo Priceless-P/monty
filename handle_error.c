@@ -1,4 +1,4 @@
-#include "main.h"
+#include "monty.h"
 
 /**
  * bad_usage - Prints usage error messages.
@@ -31,9 +31,9 @@ int open_file_err(char *file)
  *
  * Return: (EXIT_FAILURE) always.
  */
-int invalid_instruction(int line_num, char opcode)
+int invalid_instruction(char *line_num, char opcode)
 {
-		fprintf(stderr, "L%d: unknown instruction %c\n", line_num, opcode);
+		fprintf(stderr, "L%s: unknown instruction %c\n", line_num, opcode);
 		return (EXIT_FAILURE);
 }
 
@@ -57,8 +57,8 @@ int malloc_fail(void)
  *
  * Return: (EXIT_FAILURE) always.
  */
-int arg_type_error(char *line_num)
+int arg_type_error(unsigned int line_num)
 {
-		fprintf(stderr, "L%s: usage: push integer", line_num);
+		fprintf(stderr, "L%u: usage: push integer", line_num);
 		return (EXIT_FAILURE);
 }

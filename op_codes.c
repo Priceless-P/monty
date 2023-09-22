@@ -1,105 +1,121 @@
-#include "main.h"
+#include "monty.h"
 
-/**
-* push - Pushes an element to the stack
-* @stack: A pointer to the top of the stack
-* @line_number: The current line number
-*/
+void push(stack_t **stack, unsigned int line_number);
+
+void pall(stack_t **stack, unsigned int line_number);
+
+void pint(stack_t **stack, unsigned int line_number);
+
+void pop(stack_t **stack, unsigned int line_number);
+
+void swap(stack_t **stack, unsigned int line_number);
+
 void push(stack_t **stack, unsigned int line_number)
 {
-	char *arg;
+	stack_t *tmp, *new;
+	int i;
 
-	int n;
-
-	arg = strtok(NULL, DELIMS);
-	if (arg == NULL || !is_number(arg))
+	new = malloc(sizeof(stack_t));
+	if (new == NULL)
 	{
-		fprintf(stderr, "L%u: usage: push integer\n", line_number);
-		exit(EXIT_FAILURE);
+		set_token_error(malloc_fail());
+		return;
 	}
 
-	n = atoi(arg);
-	add_node(stack, n);
+	if (instruction_tokens[1] == NULL)
+	{
+		set_token_error(arg_type_error(line_number));
+		return;
+	}
+
+	for (i = 0; instruction_tokens[1][i]; i++)
+	{
+		if (instruction_tokens[1][i] == '-' && i == 0)
+			continue;
+		if (instruction_tokens[1][i] < '0' || instruction_tokens[1][i] > '9')
+		{
+			set_token_error(arg_type_error(line_number));
+			return;
+		}
+	}
+	new->n = atoi(instruction_tokens[1]);
+
+	if (determine_mode(*stack) == STACK)
+	{
+		tmp = (*stack)->next;
+		new->prev = *stack;
+		new->next = tmp;
+		if (tmp)
+			tmp->prev = new;
+		(*stack)->next = new;
+	}
+	else
+	{
+		tmp = *stack;
+		while (tmp->next)
+			tmp = tmp->next;
+		new->prev = tmp;
+		new->next = NULL;
+		tmp->next = new;
+	}
 }
 
-/**
-* pall - Prints all the values on the stack
-* @stack: A pointer to the top of the stack
-* @line_number: The current line number
-*/
 void pall(stack_t **stack, unsigned int line_number)
 {
-	stack_t *current = *stack;
-	char *arg;
+	stack_t *tmp = (*stack)->next;
 
-	arg = strtok(NULL, DELIMS);
-	if (arg == NULL || !is_number(arg))
+	while (tmp)
 	{
-		fprintf(stderr, "L%u: usage: push integer\n", line_number);
-		exit(EXIT_FAILURE);
+		printf("%d\n", tmp->n);
+		tmp = tmp->next;
 	}
-
-	while (current != NULL)
-	{
-		printf("%d\n", current->n);
-		current = current->next;
-	}
+	(void)line_number;
 }
 
-/**
-* pint - Prints the value at the top of the stack
-* @stack: A pointer to the top of the stack
-* @line_number: The current line number
-*/
 void pint(stack_t **stack, unsigned int line_number)
 {
-	if (*stack == NULL)
+	if ((*stack)->next == NULL)
 	{
-		fprintf(stderr, "L%u: can't pint, stack empty\n", line_number);
-		exit(EXIT_FAILURE);
+		set_token_error(pint_error(line_number));
+		return;
 	}
 
-	printf("%d\n", (*stack)->n);
+	printf("%d\n", (*stack)->next->n);
 }
 
-/**
-* pop - Removes the top element of the stack
-* @stack: A pointer to the top of the stack
-* @line_number: The current line number
-*/
 void pop(stack_t **stack, unsigned int line_number)
 {
-	stack_t *top;
+	stack_t *next = NULL;
 
-	if (*stack == NULL)
+	if ((*stack)->next == NULL)
 	{
-		fprintf(stderr, "L%u: can't pop an empty stack\n", line_number);
-		exit(EXIT_FAILURE);
+		set_token_error(pop_error(line_number));
+		return;
 	}
 
-	top = *stack;
-	*stack = (*stack)->next;
-	if (*stack != NULL)
-		(*stack)->prev = NULL;
-	free(top);
+	next = (*stack)->next->next;
+	free((*stack)->next);
+	if (next)
+		next->prev = *stack;
+	(*stack)->next = next;
 }
 
-/**
-* swap - Swaps the top two elements of the stack
-* @stack: A pointer to the top of the stack
-* @line_number: The current line number
-*/
 void swap(stack_t **stack, unsigned int line_number)
 {
-	int tmp;
+	stack_t *tmp;
 
-	if (*stack == NULL || (*stack)->next == NULL)
+	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
 	{
-		fprintf(stderr, "L%u: can't swap, stack too short\n", line_number);
-		exit(EXIT_FAILURE);
+		set_token_error(short_stack_error(line_number, "swap"));
+		return;
 	}
 
-	tmp = (*stack)->n;
-	(*stack)->n = (*stack)->next->n;
-	(*stack)->next->n = tmp;
+	tmp = (*stack)->next->next;
+	(*stack)->next->next = tmp->next;
+	(*stack)->next->prev = tmp;
+	if (tmp->next)
+		tmp->next->prev = (*stack)->next;
+	tmp->next = (*stack)->next;
+	tmp->prev = *stack;
+	(*stack)->next = tmp;
 }
