@@ -3,7 +3,9 @@
 void free_token_memory(void);
 unsigned int token_array_length(void);
 int check_empty_line(char *line_content, char *delimiters);
+
 void (*find_op_function(char *opcode))(stack_t**, unsigned int);
+
 int execute_monty(FILE *file_handle);
 
 void free_token_memory(void)
@@ -17,12 +19,17 @@ void free_token_memory(void)
 		free(instruction_tokens[idx]);
 
 	free(instruction_tokens);
+	instruction_tokens = NULL;
 }
 
 unsigned int token_array_length(void)
 {
 	unsigned int token_length = 0;
 
+	if (instruction_tokens == NULL)
+	{
+		return (0);
+	}
 	while (instruction_tokens[token_length])
 		token_length++;
 	return (token_length);
@@ -93,29 +100,24 @@ int execute_monty(FILE *file_handle)
 	{
 		return (EXIT_FAILURE);
 	}
-	instruction_tokens = malloc(sizeof(char *) * 2);
+
 	while (getline(&line_content, &len, file_handle) != -1)
 	{
 		line_num++;
-		instruction_tokens[0] = strtok(line_content, DELIMS);
-		if (instruction_tokens == NULL)
+		instruction_tokens = malloc(sizeof(char *) * 2);
+		instruction_tokens = split_string(line_content, DELIMS);
+		if (!instruction_tokens)
 		{
-			if (check_empty_line(line_content, DELIMS))
-				continue;
-			release_stack(&stack);
 			return (malloc_fail());
 		}
 		else if (instruction_tokens[0][0] == '#') /* comment line */
 		{
-			free_token_memory();
 			continue;
 		}
 		op_function = find_op_function(instruction_tokens[0]);
 		if (op_function == NULL)
 		{
-			release_stack(&stack);
 			exit_code = invalid_instruction(instruction_tokens[0], line_num);
-			free_token_memory();
 			break;
 		}
 		prev_token_length = token_array_length();
@@ -126,19 +128,17 @@ int execute_monty(FILE *file_handle)
 				exit_code = atoi(instruction_tokens[prev_token_length]);
 			else
 				exit_code = EXIT_FAILURE;
-			free_token_memory();
 			break;
 		}
-		free_token_memory();
+		len = 0;
 	}
-	release_stack(&stack);
 
 	if (line_content && *line_content == 0)
 	{
-		free(line_content);
 		return (malloc_fail());
 	}
-
 	free(line_content);
+	release_stack(&stack);
+	free_token_memory();
 	return (exit_code);
 }

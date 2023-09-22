@@ -12,9 +12,11 @@ void swap(stack_t **stack, unsigned int line_number);
 
 void push(stack_t **stack, unsigned int line_number)
 {
+
 	stack_t *tmp, *new;
 	int i;
 
+(void)line_number;
 	new = malloc(sizeof(stack_t));
 	if (new == NULL)
 	{
@@ -24,7 +26,6 @@ void push(stack_t **stack, unsigned int line_number)
 
 	if (instruction_tokens[1] == NULL)
 	{
-		set_token_error(arg_type_error(line_number));
 		return;
 	}
 
@@ -34,7 +35,6 @@ void push(stack_t **stack, unsigned int line_number)
 			continue;
 		if (instruction_tokens[1][i] < '0' || instruction_tokens[1][i] > '9')
 		{
-			set_token_error(arg_type_error(line_number));
 			return;
 		}
 	}
@@ -58,6 +58,7 @@ void push(stack_t **stack, unsigned int line_number)
 		new->next = NULL;
 		tmp->next = new;
 	}
+	free(new);
 }
 
 void pall(stack_t **stack, unsigned int line_number)
